@@ -1,5 +1,4 @@
-var mqttStack = require('./mqtt-stack');
-var mqtt = require('mqtt');
+var mqttStack = require('./lib/mqtt-stack');
 
 class MqttRouter {
 
@@ -79,12 +78,10 @@ class MqttRouter {
         // subscribe to topics marked by auto
         for (var i = 0; i < this.subscribe.length; i++) {
             this.client.subscribe(this.trimPath(this.subscribe[i]));
-            console.log("subscribed to " + this.trimPath(this.subscribe[i]));
         }
 
         // use provided stack on message received
         this.client.on('message', (topic, payload) => {
-            console.log("received message");
             this.stack.use(topic, payload);
         })
     }
@@ -104,14 +101,6 @@ class MqttRouter {
 
     get active() {
         return !(this.client === undefined);
-    }
-
-    /**
-    * Use router
-    * @test
-    */
-    _use(topic, payload) {
-        this.stack.use(topic, payload);
     }
 
 }
