@@ -2,6 +2,7 @@ var mqtt = require('mqtt');
 var mqttRouter = require('mqtt-simple-router');
 
 var client = mqtt.connect('mqtt://localhost');
+var router = new mqttRouter();
 
 // the topic returned is an object containing both .topic (the original topic) and .params (containing named parameter values, or undefined)
 
@@ -31,3 +32,4 @@ router.default(function(topic, payload) {
 router.wrap(client);
 
 module.exports = client;
+
