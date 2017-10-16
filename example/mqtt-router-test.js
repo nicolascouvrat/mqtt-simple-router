@@ -30,6 +30,3 @@ router.default(function(topic, payload) {
 });
 
 router.wrap(client);
-
-module.exports = client;
-
