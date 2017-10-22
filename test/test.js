@@ -9,10 +9,18 @@ var router = new mqttRouter();
 
 // the topic returned is an object containing both .topic (the original topic) and .params (containing named parameter values, or undefined)
 
-router.auto('/all/hello', function(request) {
+router.auto('/all/hello', function(request, next) {
     // automatically subscribe on router.wrap()
     console.log('new message on ' + request.topic + ': ' + request.payload);
+    throw 'an error';
 });
+
+/*router.auto('/all/hello', function(error, request, next) {
+    if (error) {
+        console.log('there was an error :(')
+        console.log(error);
+    }
+})*/
 
 router.manual('/all/hello/message', function(request) {
     //will NOT automatically subscribe
@@ -35,7 +43,7 @@ router.auto('/:stuff/specific', function(request, next) {
 
 router.default(function(request) {
     // will be used at the 'end of the line', i.e. when either:
-    // a message doesnt fit any topic (subscribed after router set up)
+    // a message doesnt fit any topic (subscribed after router set up) or
     // next() has been called but their is no matching function left in the stack
     console.log('unhandled behavior: ' + request.topic + request.payload);
 });
