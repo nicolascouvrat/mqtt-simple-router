@@ -48,7 +48,7 @@ router.defaultHandler(function(error, request) {
     // ...
 });
 
-router.auto(function(error, request, next) {
+router.auto('/all/error', function(error, request, next) {
     // must have these 3 arguments, even if next() is not used
     if  (error.name === 'RangeError') {
         console.log('There was a range error :(')

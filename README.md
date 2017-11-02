@@ -115,7 +115,7 @@ Can be implemented in the same way as regular layers using `router.auto()`. They
 In a similar fashion to regular layers, error-handling layer can call on `next(error)` to pass the error to the next error handler (or to the default handler).
 
 ```js
-router.auto(function(error, request, next) {
+router.auto('/all/error', function(error, request, next) {
     if  (error.name === 'RangeError') {
         console.log('There was a range error :(')
     }
