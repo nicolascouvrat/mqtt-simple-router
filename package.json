@@ -1,6 +1,6 @@
 {
   "name": "mqtt-simple-router",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Simplify listening to many differents mqtt topics by grouping all functions in a router file, similar to express.js ",
   "main": "index.js",
   "directories": {
