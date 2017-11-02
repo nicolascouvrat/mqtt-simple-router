@@ -34,7 +34,7 @@ router.auto('/:channel', function(request, next) {
     console.log('new message on channel ' + request.params.channel + ': ' + request.payload);
 });
 
-router.manual('/+/:subchannel/#', function(request, next) {
+router.auto('/+/:subchannel/#', function(request, next) {
     console.log('new message containing subchannel ' + request.params.subchannel + ': ' + request.payload);
 });
 
