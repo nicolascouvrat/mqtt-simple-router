@@ -41,15 +41,8 @@ class MqttRouter {
 
     manual(path, fn) {
 
-        if(typeof path !== 'string') {
-            throw new TypeError('MqttRouter.auto() requires a path but got a ' + typeof path + ' instead!');
-        }
-
-        if(typeof fn !== 'function') {
-            throw new TypeError('MqttRouter.auto() requires a function but got a ' + typeof fn + ' instead!');
-        }
-        this.stack.add(path, fn);
-        this.paths.push(path);
+        console.log("Usage of manual() has been deprecated, defaulting to auto() instead");
+        this.auto(path, fn);
 
     }
 
@@ -59,11 +52,11 @@ class MqttRouter {
     * @public
     */
 
-    default(fn) {
+    defaultHandler(fn) {
         if(typeof fn !== 'function') {
-            throw new TypeError('MqttRouter.default() requires a function but got a ' + typeof fn + ' instead!');
+            throw new TypeError('MqttRouter.defaultHandler() requires a function but got a ' + typeof fn + ' instead!');
         }
-        this.stack.addDefault(fn);
+        this.stack.addDefaultHandler(fn);
     }
 
     /**
@@ -82,6 +75,7 @@ class MqttRouter {
 
         // use provided stack on message received
         this.client.on('message', (topic, payload) => {
+            console.log('got it');
             this.stack.use(topic, payload);
         })
     }

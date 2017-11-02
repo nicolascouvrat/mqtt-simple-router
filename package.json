@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/nicolascouvrat/mqtt-simple-router#readme",
   "dependencies": {
-    "mqtt": "^2.13.0",
     "path-to-regexp": "^2.0.0"
   }
 }

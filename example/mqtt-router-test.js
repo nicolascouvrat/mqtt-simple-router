@@ -4,29 +4,60 @@ var mqttRouter = require('mqtt-simple-router');
 var client = mqtt.connect('mqtt://localhost');
 var router = new mqttRouter();
 
-// the topic returned is an object containing both .topic (the original topic) and .params (containing named parameter values, or undefined)
+// the request object returned is an object containing
+// .topic (the original topic)
+// .payload
+// .path and
+// .params (containing named parameter values, or undefined)
 
-router.auto('/all/hello', function(topic, payload) {
+router.auto('/all/hello', function(request) {
     // automatically subscribe on router.wrap()
-    console.log('new message on ' + topic.topic + ': ' + payload);
+    console.log('new message on ' + request.topic + ': ' + request.payload);
 });
 
-router.manual('/all/hello/message', function(topic, payload) {
-    //will NOT automatically subscribe
-    console.log('new message on ' + topic.topic + ': ' + payload);
+router.auto('/all/hello/message', function(request, next) {
+    console.log('new message on ' + request.topic + ': ' + request.payload);
+    request.payload = 'modified';
+    next();
 });
 
-router.auto('/:channel', function(topic, payload) {
-    console.log('new message on channel ' + topic.params.channel + ': ' + payload);
+router.auto('/all/hello/message', function(request, next) {
+    console.log('new message on ' + request.topic + ': ' + request.payload);
+    // payload will be equal to 'modified'
 });
 
-router.manual('/+/:subchannel/#', function(topic, payload) {
-    console.log('new message containing subchannel ' + topic.params.subchannel + ': ' + payload);
+/*
+ * Named parameters
+ */
+
+router.auto('/:channel', function(request, next) {
+    console.log('new message on channel ' + request.params.channel + ': ' + request.payload);
 });
 
-router.default(function(topic, payload) {
-    // will be used for any messages received on topics that have been subscribed to outside of the router
-    console.log('unhandled behavior: ' + topic.topic + payload);
+router.manual('/+/:subchannel/#', function(request, next) {
+    console.log('new message containing subchannel ' + request.params.subchannel + ': ' + request.payload);
 });
 
+/*
+ * error handling
+ */
+
+router.defaultHandler(function(error, request) {
+    // all errors non treated by custom error handlers will end up here
+    console.log("An error has happened!");
+    // ...
+});
+
+router.auto(function(error, request, next) {
+    // must have these 3 arguments, even if next() is not used
+    if  (error.name === 'RangeError') {
+        console.log('There was a range error :(')
+    }
+    else {
+        next(error);
+        // other errors are send to the next handler
+    }
+})
+
+// wrap the router around the client, subscribing to topics specified by auto
 router.wrap(client);

@@ -9,25 +9,27 @@ var router = new mqttRouter();
 
 // the topic returned is an object containing both .topic (the original topic) and .params (containing named parameter values, or undefined)
 
-router.auto('/all/hello', function(request, next) {
+router.auto('/all/hello/+', function(request, next) {
     // automatically subscribe on router.wrap()
     console.log('new message on ' + request.topic + ': ' + request.payload);
-    throw 'an error';
+    var array = [];
+    var bug = array[1] - z
 });
 
-/*router.auto('/all/hello', function(error, request, next) {
-    if (error) {
+router.auto('/all/hello/error', function(error, request, next) {
+    if (error.name === 'RangeError') {
         console.log('there was an error :(')
-        console.log(error);
+        next(error);
     }
-})*/
+    next(error);
+})
 
 router.manual('/all/hello/message', function(request) {
     //will NOT automatically subscribe
     console.log('new message on ' + request.topic + ': ' + request.payload);
 });
 
-router.auto('/:channel/#', function(request, next) {
+/*router.auto('/:channel/#', function(request, next) {
     console.log('new message on channel (general) ' + request.params.channel);
     console.log(request.params);
     request.payload = 'changed';
@@ -39,14 +41,11 @@ router.auto('/:stuff/specific', function(request, next) {
     console.log(request.params);
     next();
 
-});
+});*/
 
-router.default(function(request) {
-    // will be used at the 'end of the line', i.e. when either:
-    // a message doesnt fit any topic (subscribed after router set up) or
-    // next() has been called but their is no matching function left in the stack
-    console.log('unhandled behavior: ' + request.topic + request.payload);
-});
+router.defaultHandler(function(error, request) {
+    console.log("nope, i got dis");
+})
 
 router.wrap(client);
 
