@@ -24,6 +24,7 @@ MQTT requires the [path-to-regexp](https://www.npmjs.com/package/path-to-regexp)
 The basic idea is simple and heavily inspired by Express.js's router : define routes for your router first, then wrap that router around the MQTT client once connected.
 
 Routes can be added simply with `router.auto('your/mqtt/path', your_function(request, next))`. The router will automatically subscribe to all relevant topic(s) on `router.wrap(client)`.
+
 **Note:** Due to the way MQTT functions, the `router.manual()` method that required a subscription later on to the topic in version 1.0 has been **removed** in 1.1. Indeed, using an auto-subscription on a "wide" topic (for instance `message/#`) would render all `router.manual()` calls useless for "narrower" topics, making code behave in an expected way. A manual switch of the routes themselves is planned for a later version, to obtain a behavior close to what was originally planned for `router.manual()`.
 
 #### `request` parameter
@@ -32,8 +33,7 @@ The `request` passed to the callback function is an object containing `request.t
 
 #### `next` parameter
 
-Much like Express.js's router, next() allows you to chain several layers for a single request. For example, all topics matching `/json/#` could first be json parsed by a first layer, then different layers `/json/topic1` and `/json/topic2` could apply more specific processing depending on the received topic. Note that:
-**no argument** should be passed to the `next()` function except for errors (see the **error handling** section below), and that not calling `next()` will stop the matching process (i.e. the router will stop at the first match, even if there are others below) and lead to some layers being unaccessible.
+Much like Express.js's router, next() allows you to chain several layers for a single request. For example, all topics matching `/json/#` could first be json parsed by a first layer, then different layers `/json/topic1` and `/json/topic2` could apply more specific processing depending on the received topic. Note that **no argument should be passed to the `next()` function except for errors** (see the **error handling** section below), and that not calling `next()` will stop the matching process (i.e. the router will stop at the first match, even if there are others below) which might lead to some layers being unaccessible.
 
 ```js
 var mqtt = require('mqtt');
@@ -78,7 +78,7 @@ router.wrap(client);
 ```
 #### Named parameters
 
-Named parameters can be used, by preceding them with a semicolon `:`. Their value can then be accessed in `topic.params.parameter_name`.
+Named parameters can be used, by preceding them with a semicolon `:`. Their value can then be accessed in `request.params.parameter_name`.
 The module also supports the MQTT jokers, treating '+' as a nameless parameter.
 
 ```js
