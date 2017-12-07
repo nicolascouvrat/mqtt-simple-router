@@ -7,6 +7,7 @@ class MqttRouter {
         this.stack = new mqttStack();
         this.subscribe = [];
         this.paths = [];
+        this.unactiveLayers = {};
     }
 
     /**
@@ -36,14 +37,40 @@ class MqttRouter {
     * Add path to stack but will NOT automatically subscribe on client connection
     * @param {Path} path
     * @param {function} fn
+    * @param {string} alias the (temporary) alias under which
+    *                       the layer will be saved for acivation.
+    *                       if this parameter is not provided, the default
+    *                       alias will be the provided path.
     * @public
     */
 
-    manual(path, fn) {
+    manual(path, fn, alias) {
 
-        console.log("Usage of manual() has been deprecated, defaulting to auto() instead");
-        this.auto(path, fn);
+      if(typeof path !== 'string') {
+          throw new TypeError('MqttRouter.manual() requires a path but got a ' + typeof path + ' instead!');
+      }
 
+      if(typeof fn !== 'function') {
+          throw new TypeError('MqttRouter.manual() requires a function but got a ' + typeof fn + ' instead!');
+      }
+      // default alias is path
+      alias = alias || path;
+      if (this.unactiveLayers.alias) {
+        throw new Error('Aliases for MqttRouter.manual() should be unique!');
+      }
+      this.unactiveLayers[alias] = { path: path, fn: fn };
+      this.paths.push(path);
+    }
+
+    activate(alias) {
+      if (!this.unactiveLayers.alias) {
+        throw new Error(`Unknown alias: ${alias}`);
+      }
+      var layer = this.unactiveLayers.alias;
+      this.stack.add(layer.path, layer.fn);
+      this.client.subscribe(this.trimPath(layer.path));
+      // remove from unactiveLayers
+      delete this.unactiveLayers.alias;
     }
 
     /**
