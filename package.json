@@ -3,11 +3,12 @@
   "version": "1.1.2",
   "description": "Simplify listening to many differents mqtt topics by grouping all functions in a router file, similar to express.js ",
   "main": "index.js",
+  "test-unit": "NODE_ENV=test mocha '/test/*.spec.js'",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,12 @@
   "homepage": "https://github.com/nicolascouvrat/mqtt-simple-router#readme",
   "dependencies": {
     "path-to-regexp": "^2.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "mqtt": "^2.14.0",
+    "sinon": "^4.1.2",
+    "sinon-chai": "^2.14.0"
   }
 }
