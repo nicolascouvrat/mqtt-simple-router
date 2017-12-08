@@ -25,7 +25,7 @@ The basic idea is simple and heavily inspired by Express.js's router : define ro
 
 Routes can be added simply with `router.auto('your/mqtt/path', your_function(request, next))`. The router will automatically subscribe to all relevant topic(s) on `router.wrap(client)`.
 
-**Note:** Due to the way MQTT functions, the `router.manual()` method that required a subscription later on to the topic in version 1.0 has been **removed** in 1.1. Indeed, using an auto-subscription on a "wide" topic (for instance `message/#`) would render all `router.manual()` calls useless for "narrower" topics, making code behave in an expected way. A manual switch of the routes themselves is planned for a later version, to obtain a behavior close to what was originally planned for `router.manual()`.
+**Note:** `router.manual()` is back in 1.2! See below for more information
 
 #### `request` parameter
 
@@ -73,8 +73,31 @@ router.auto('/all/hello/message', function(request, next) {
 
 });
 
-// wrap the router around the client, subscribing to topics specified by auto
-router.wrap(client);
+// wrap the router around the client,
+// this needs to be done after connection
+client.on('connect', () => {
+  router.wrap(client);
+});
+```
+
+#### `manual()` vs `auto()`
+
+When adding routes and their handles (a.k.a. layers) to the router, two possibles ways are made available: `router.manual(path, handle[, alias])` and `router.auto(path, handle)`.
+Layers registered with `router.auto()` are immediately added to the stack on `router.wrap()`. `router.manual()` allows you to create inactive layers _then_ activate them at a later date. Due to the way MQTT jokers work, this does not mean that the client will not subscribe to layers registered with `auto()`, as some `manual()`-registered layers could be made active _even if not explicitly subscribed to_, causing unexpected behavior. 
+
+For example, if one of your layers had `'#'` for path (the true-for-all MQTT joker), then any `manual()`-registered layers would be treated exactly as an `auto()`-registered one, effectively making the call to `manual()` useless.
+
+Instead, layers are simply stored outside of the stack under an `alias`. This `alias` is either user-specified, or equal to the layer's path (default behavior). Later, `router.activate(alias)` can be called upon to move the said layer into the main stack, making it active.
+
+**Usage:**
+```javascript
+router.manual('/all/hello', function(request) {
+  // this will not be executed as long as .activate() has not been called
+}, 'manual_layer');
+
+// later in the code
+router.activate('manual_layer');
+// from now on, the above-defined layer will be used on incoming messages
 ```
 #### Named parameters
 
@@ -133,4 +156,3 @@ router.auto('/all/error', function(error, request, next) {
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-
