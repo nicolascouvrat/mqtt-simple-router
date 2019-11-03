@@ -102,7 +102,6 @@ class MqttRouter {
 
         // use provided stack on message received
         this.client.on('message', (topic, payload) => {
-            console.log('got it');
             this.stack.use(topic, payload);
         })
     }
