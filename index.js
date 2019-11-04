@@ -11,7 +11,7 @@ class MqttRouter {
     }
 
     /**
-    * Add path to stack and will automatically subscribe on client connection via subscriber module
+    * Add path to stack and automatically subscribe via subscriber module after wrap()
     * @param {Path} path
     * @param {function} fn
     * @public
@@ -28,7 +28,13 @@ class MqttRouter {
         }
 
         this.stack.add(path, fn);
-        this.subscribe.push(path);
+        
+        if(this.client) {
+            this.client.subscribe(path);
+        } else {
+            this.subscribe.push(path);
+        }
+        
         this.paths.push(path);
 
     }
